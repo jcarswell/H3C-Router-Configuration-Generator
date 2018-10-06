@@ -81,7 +81,7 @@ class Acl():
                 x == 'ipv':
                 pass
             else:
-                self.rules[rule_num] = {x:data[x]}
+                self.rules[rule_num][x] = data[x]
 
 
     def output(self,f):
