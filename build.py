@@ -44,4 +44,3 @@ def main():
         elif obj_csv != None:
             objCfg(c,acl_cfg)
 
-
