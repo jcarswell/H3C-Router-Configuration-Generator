@@ -25,9 +25,9 @@ def main():
             routes_csv = arg
         elif opt == "--acls":
             acl_int = arg
-        elif opt == "--obj"
+        elif opt == "--obj":
             obj_csv == arg
-        elif opt == "--out"
+        elif opt == "--out":
             config = arg
 
     with open(config, 'a+') as c:
@@ -68,14 +68,14 @@ def aclCfg(config,csv_file):
     with open(csv_file) as data:
         csv_data = csv.DictReader(data)
         for row in csv_data:
-            if csv_data[row]["ipv"] = '4':
+            if csv_data[row]["ipv"] == '4':
                 if csv_data[row]["name"] in acl4s:
                     acl4s[csv_data[row]["name"]].add(csv_data[row])
                 else:
                     acl4s[csv_data[row]["name"]] = Acl(csv_data[row]["name"])
                     acl4s[csv_data[row]["name"]].add(csv_data[row])
-            elif csv_data[row]["ipv"] = '6':
-                if if csv_data[row]["name"] in acl6s:
+            elif csv_data[row]["ipv"] == '6':
+                if csv_data[row]["name"] in acl6s:
                     acl6s[csv_data[row]["name"]].add(csv_data[row])
                 else:
                     acl64s[csv_data[row]["name"]] = Acl(csv_data[row]["name"])
@@ -103,8 +103,6 @@ class Acl():
 
         try:
             rule_num = int(data['num'])
-        else:
-            rule_num = 0
         except ValueError:
             rule_num = 0
 
@@ -115,9 +113,9 @@ class Acl():
                 break
         self.rules[rule_num] = {}
         for x in data:
-            if x == 'num' or 
+            if (x == 'num' or 
                 x == 'name' or 
-                x == 'ipv':
+                x == 'ipv'):
                 pass
             else:
                 self.rules[rule_num][x] = data[x]
