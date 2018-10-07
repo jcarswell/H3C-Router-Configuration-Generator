@@ -222,13 +222,19 @@ class Interface():
         f.write(self)
 
 class Ospf():
-    def __init__(self,pid,id,vrf=None)
-    """ __init__(pid,id,vrf)
+
+    pid = None
+    router_id = ""
+    vrf = None
+    silent_int = []
+
+    def __init__(self,pid,router_id,vrf=None)
+    """ __init__(pid,router_id,vrf)
     Initalizes a new Ospf config object
 
     Arguments:
         pid (int): the process id for the Ospf instance
-        id (string): the router-id for the Ospf instance
+        router_id (string): the router-id for the Ospf instance
         vrf (string|None): the vrf that the Ospf instance resides in
 
     Returns: Class object
@@ -238,10 +244,10 @@ class Ospf():
     except ValueError:
         raise TypeError("pid must be an int")
     
-    if type(id) != 'string'
+    if type(router_id) != 'string'
         raise TypeError("id must be a string")
     else
-        self.id = id
+        self.router_id = router_id
 
     if vrf != None:
         self.vrf = str(vrf)
@@ -252,12 +258,12 @@ class Ospf():
         """
         
         if self.vrf != None:
-            config = "ospf {} router-id {} vpn-instance {}\n".format(self.pid,self.id,self.vrf)
+            config = "ospf {} router-id {} vpn-instance {}\n".format(self.pid,
+                    self.router_id,
+                    self.vrf)
         else:
-            config = "ospf {} router-id {}\n".format(self.pid,self.id)
+            config = "ospf {} router-id {}\n".format(self.pid,self.router_id)
 
-        config = config + " router-id {}\n".format(self.id)
-        
         if self.silent_int != []:
             for interface in self.silent_int:
                 config = config + " silent-interface {}\n".format(interface)
@@ -280,7 +286,7 @@ class Ospfv3(Ospf):
         else:
             config = "ospfv3 {}\n".format(self.pid)
 
-        config = config + " router-id {}\n".format(self.id)
+        config = config + " router-id {}\n".format(self.router_id)
         
         if self.silent_int != []:
             for interface in self.silent_int:

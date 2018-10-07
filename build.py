@@ -46,10 +46,40 @@ def main():
             routesCfg(c,routes_csv)
 
 def intCfg(config,csv_file):
+    ospfs = {}
+    ospfv3s = {}
+    interfaces = {}
+
     with open(csv_file) as data:
         csv_data = csv.DictReader(data)
         for l in csv_data:
-            pass
+            if not csv_data[row]["Interface"] in interfaces:
+                interfaces[csv_data[row]["Interface"]] in config.Interface(
+                        csv_data[row]["Interface"],csv_data[row])
+            else:
+                if csv_data[row]["dhcp-opts"] != None:
+                    interfaces[csv_data[row]["Interface"]].add(
+                            dhcp=csv_data[row]["dhcp-opts"])
+                if csv_data[row]["dhcpv6-opts"] != None:
+                    interfaces[csv_data[row]["Interface"]].add(
+                            dhcpv6=csv_data[row]["dhcpv6-opts"])
+            if csv_data[row]["OSPF-ID"] != None:
+                if (csv_data[row]["OSPF-Area"] != None and 
+                        not csv_data[row]["OSPF-Area"] in ospfs):
+                    ospfs[csv_data[row]["OSPF-ID"]] = config.ospf(
+                        csv_data[row]["OSPF-ID"],
+                        csv_data[row]["OSPF-router-id"])
+                    if csv_data[row]["OSPF-Silent"] != None:
+                        ospfs[csv_data[row]["OSPF-ID"]].silent_int.append(
+                                csv_data[row]["Interface"])
+                if (csv_data[row]["OSPFv3-Area"] != None and 
+                        not csv_data[row]["OSPFv3-Area"] in ospfv3s:
+                    ospfv3s[csv_data[row]["OSPFv3-ID"]] = config.ospf(
+                        csv_data[row]["OSPF-ID"],
+                        csv_data[row]["OSPF-router-id"])
+                    if csv_data[row]["OSPFv3-Silent"] != None:
+                        ospfv3s[csv_data[row]["OSPF-ID"]].silent_int.append(
+                                csv_data[row]["Interface"])
 
 def vrfCfg(config,csv_file):
     pass
@@ -73,13 +103,13 @@ def aclCfg(config,csv_file):
                 if csv_data[row]["name"] in acl4s:
                     acl4s[csv_data[row]["name"]].add(csv_data[row])
                 else:
-                    acl4s[csv_data[row]["name"]] = Acl(csv_data[row]["name"])
+                    acl4s[csv_data[row]["name"]] = config.Acl(csv_data[row]["name"])
                     acl4s[csv_data[row]["name"]].add(csv_data[row])
             elif csv_data[row]["ipv"] == '6':
                 if csv_data[row]["name"] in acl6s:
                     acl6s[csv_data[row]["name"]].add(csv_data[row])
                 else:
-                    acl64s[csv_data[row]["name"]] = Acl(csv_data[row]["name"])
+                    acl64s[csv_data[row]["name"]] = config.Acl6(csv_data[row]["name"])
                     acl6s[csv_data[row]["name"]].add(csv_data[row])
         for acl in acl4s:
             acl4s[acl].output(config)
