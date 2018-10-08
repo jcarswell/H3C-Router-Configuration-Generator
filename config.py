@@ -22,9 +22,9 @@ class Acl():
         if (name != None and
                 type(name) != string):
             raise TypeError("name must be a string")
-        else
+        else:
             self.name = name
-        if (num != None)
+        if num != None:
                 try:
                     int(num)
                 except ValueError:
@@ -197,7 +197,7 @@ class Interface():
     dhcpv6_opts = []
     dhcp_trust = False
     int_opts = []
-    acl = {4:None 6:None}
+    acl = {4:None,6:None}
 
     def __init__(self,name,config):
         """ __init__(name,config)
@@ -317,11 +317,11 @@ class Interface():
         config = "interface {}\n".format(self.name)
         if (self.link-mode != None and (
                 self.link-mode.lower() == "bridge" or
-                self.link-mode.lower() == "route"))
+                self.link-mode.lower() == "route")):
             config += " port link-mode {}\n".format(self.link.mode.lower())
         if (self.combo != None and (
                 self.combo.lower() == "copper" or
-                self.combo.lower() == "fiber"))
+                self.combo.lower() == "fiber")):
             config += " combo enable {}\n".format(self.combo.lower())
         if self.description != None:
             config += " description \"{}\"\n".format(self.description)
@@ -386,29 +386,29 @@ class Ospf():
     vrf = None
     silent_int = []
 
-    def __init__(self,pid,router_id,vrf=None)
-    """ __init__(pid,router_id,vrf)
-    Initalizes a new Ospf config object
+    def __init__(self,pid,router_id,vrf=None):
+        """ __init__(pid,router_id,vrf)
+        Initalizes a new Ospf config object
 
-    Arguments:
-        pid (int): the process id for the Ospf instance
-        router_id (string): the router-id for the Ospf instance
-        vrf (string|None): the vrf that the Ospf instance resides in
+        Arguments:
+            pid (int): the process id for the Ospf instance
+            router_id (string): the router-id for the Ospf instance
+            vrf (string|None): the vrf that the Ospf instance resides in
 
-    Returns: Class object
-    """
-    try:
-        self.pid = int(pid)
-    except ValueError:
-        raise TypeError("pid must be an int")
-    
-    if type(router_id) != 'string'
-        raise TypeError("id must be a string")
-    else
-        self.router_id = router_id
+        Returns: Class object
+        """
+        try:
+            self.pid = int(pid)
+        except ValueError:
+            raise TypeError("pid must be an int")
+        
+        if type(router_id) != 'string':
+            raise TypeError("id must be a string")
+        else:
+            self.router_id = router_id
 
-    if vrf != None:
-        self.vrf = str(vrf)
+        if vrf != None:
+            self.vrf = str(vrf)
 
     def __str__(self):
         """ __str__()

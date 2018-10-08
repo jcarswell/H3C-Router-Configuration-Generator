@@ -53,7 +53,7 @@ def intCfg(config,csv_file):
     with open(csv_file) as data:
         csv_data = csv.DictReader(data)
         for l in csv_data:
-            if not csv_data[row]["Interface"] in interfaces:
+            if csv_data[row]["Interface"] not in interfaces:
                 interfaces[csv_data[row]["Interface"]] in config.Interface(
                         csv_data[row]["Interface"],csv_data[row])
             else:
@@ -65,7 +65,7 @@ def intCfg(config,csv_file):
                             dhcpv6=csv_data[row]["dhcpv6-opts"])
             if csv_data[row]["OSPF-ID"] != None:
                 if (csv_data[row]["OSPF-Area"] != None and 
-                        not csv_data[row]["OSPF-Area"] in ospfs):
+                        csv_data[row]["OSPF-Area"] not in ospfs):
                     ospfs[csv_data[row]["OSPF-ID"]] = config.ospf(
                         csv_data[row]["OSPF-ID"],
                         csv_data[row]["OSPF-router-id"])
@@ -73,7 +73,7 @@ def intCfg(config,csv_file):
                         ospfs[csv_data[row]["OSPF-ID"]].silent_int.append(
                                 csv_data[row]["Interface"])
                 if (csv_data[row]["OSPFv3-Area"] != None and 
-                        not csv_data[row]["OSPFv3-Area"] in ospfv3s:
+                        csv_data[row]["OSPFv3-Area"] not in ospfv3s):
                     ospfv3s[csv_data[row]["OSPFv3-ID"]] = config.ospf(
                         csv_data[row]["OSPF-ID"],
                         csv_data[row]["OSPF-router-id"])
