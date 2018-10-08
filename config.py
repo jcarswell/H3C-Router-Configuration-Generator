@@ -168,9 +168,6 @@ class Acl6(Acl):
             if self.rules[ruleRow]['options'] != None:
                 rule = rule + " {}".format(self.rules[ruleRow]['options'])
 
-    def output(self,f):
-        f.write(self)
-
 class Interface():
     """ Interface Config objects
     """
@@ -377,6 +374,12 @@ class Interface():
         return config
 
     def output(seld,f):
+        # Check to see if f is a file otherwise raise an ValueError
+        try:
+            if type(f) != 'file':
+                raise TypeError("argument is not a open file")
+        except NameError:
+            raise ValueError("Missing argument")
         f.write(self)
 
 class Ospf():
@@ -431,6 +434,12 @@ class Ospf():
         return config
 
     def Output(self,f):
+        # Check to see if f is a file otherwise raise an ValueError
+        try:
+            if type(f) != 'file':
+                raise TypeError("argument is not a open file")
+        except NameError:
+            raise ValueError("Missing argument")
         f.write(self)
 
 class Ospfv3(Ospf):
@@ -453,3 +462,174 @@ class Ospfv3(Ospf):
         config = config + "#\n"
 
         return config
+
+class vrf():
+    name = ""
+    rd = ""
+    imports = []
+    exports = []
+    
+    def __init__(self,name,rd,auto=True):
+        if type(name) != 'str':
+            raise TypeError("name must be a string")
+        else:
+            self.name = name
+
+        if type(rd) != 'str':
+            raise TypeError("rd must be a string")
+        else:
+            self.rd = rd
+            if auto:
+                self.imports.append(rd)
+                self.exports.append(rd)
+            
+    def add(self,imp=None,exp=None):
+        if (imp != None and
+                imp not in self.imports):
+            self.imports.append(imp)
+        if (exp != None and
+                exp not in self.exports):
+            self.exports.append(exp)
+
+    def __str__(self):
+        """ __str__()
+        Returns a string object of the configuration
+        """
+
+        config = "ip vpn-instance {}\n".format(self.name)
+        config += " route-distinguisher {}\n".format(self.rd)
+
+        if self.imports != []:
+            config += "vpn-target "
+            for rd in self.imports:
+                config += "{} ".format(rd)
+            config += "import-extcommunity\n"
+
+        if self.exports != []:
+            config += "vpn-target "
+            for rd in self.exports:
+                config += "{} ".format(rd)
+            config += "export-extcommunity\n"
+
+        config += " #\n"
+        config += " address-family ipv4\n"
+        config += " #\n"
+        config += " address-family ipv6\n"
+        config += "#"
+
+        return config
+
+    def Output(self,f):
+        # Check to see if f is a file otherwise raise an ValueError
+        try:
+            if type(f) != 'file':
+                raise TypeError("argument is not a open file")
+        except NameError:
+            raise ValueError("Missing argument")
+        f.write(self)
+
+class Routes():
+
+    ipv = None
+    dest = None
+    mask = None
+    nh = None
+    weight = None
+    vrf = None
+
+    def __init__(self,dest,nh,ipv=4,weight=None,vrf=None):
+        """ __init__(dest,nh,ipv,weight,vrf)
+        sets up a route object
+
+        Arguments:
+            dest (string): ip address of destination including mask
+            nh (string): next-hop ip address 
+            ipv (int|4): IP Version
+            weight (int|10): route weight
+            vrf (string|None): VRF instance
+
+        returns: Class object
+        """
+        self.ipv = ipv
+        self.dest = dest
+        self.nh = nh
+        self.weight = weight
+        self.vrf = vrf
+         
+    def __str__(self):
+        """ __str__()
+        Returns a string object of the configuration
+        """
+        if ipv == 4:
+            config = " ip route-static "
+        elif ipv == 6:
+            config = " ipv6 route-static "
+
+        if self.vrf != None:
+            config += "vpn-instance {} ".format(self.vrf)
+
+        config += "{} {}".format(self.dest,self.nh)
+        
+        if self.weight != None:
+            config += " preferance {}".format(self.weight)
+
+        return config
+
+    def Output(self,f):
+        # Check to see if f is a file otherwise raise an ValueError
+        try:
+            if type(f) != 'file':
+                raise TypeError("argument is not a open file")
+        except NameError:
+            raise ValueError("Missing argument")
+        f.write(self)
+
+class Obj():
+    objects = {}
+    name = ""
+    ipv = 4
+
+    def __init__(self,name,ipv=4):
+        if type(name) != 'str':
+            raise TypeError("name must be of type str")
+
+        self.name = name
+        try:
+            self.ipv = int(ipv)
+        except ValueError:
+            raise TypeError("ipv must be an int")
+
+    def add(self,obj,obj_type):
+        if (obj_type != "host" or
+                obj_type != "subnet"):
+            raise ValueError("obj_type must be either 'host' or 'subnet'")
+        self.objects[obj] = obj_type
+
+    def __str__(self):
+        """ __str__()
+        Returns a string object of the configuration
+        """
+        if self.objects == {}:
+            return 
+        config = "object-group "
+        if ipv == 4:
+            config += "ip address {}\n".format(self.name)
+        elif ipv == 6:
+            config += "ipv6 address {}\n".format(self.name)
+
+        for obj in self.objects:
+            if self.objects[obj] == 'host':
+                config += " network host address {}\n".format(obj)
+            elif self.objects[obj] == 'subnet':
+                config += " network subnet {}\n".format(obj)
+
+        return config
+
+    def Output(self,f):
+        # Check to see if f is a file otherwise raise an ValueError
+        try:
+            if type(f) != 'file':
+                raise TypeError("argument is not a open file")
+        except NameError:
+            raise ValueError("Missing argument")
+        f.write(self)
