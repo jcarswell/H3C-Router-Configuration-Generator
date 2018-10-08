@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import sys
 import csv
-import config
+import h3c
 
 def main():
     
@@ -11,7 +11,7 @@ def main():
     routes_csv = None
     acl_csv = None
     obj_csv = None
-    config = 'config.txt'
+    config = 'h3c.txt'
 
     for x in range(1,len(sys.argv)):
         opt = sys.argv[x].lower()
@@ -58,7 +58,7 @@ def intCfg(config,csv_file):
         csv_data = csv.DictReader(data)
         for l in csv_data:
             if row["Interface"] not in interfaces:
-                interfaces[row["Interface"]] in config.Interface(
+                interfaces[row["Interface"]] in h3c.Interface(
                         row["Interface"],row)
             else:
                 if row["dhcp-opts"] != None:
@@ -70,7 +70,7 @@ def intCfg(config,csv_file):
             if row["OSPF-ID"] != None:
                 if (row["OSPF-Area"] != None and 
                                  row["OSPF-Area"] not in ospfs):
-                    ospfs[row["OSPF-ID"]] = config.ospf(
+                    ospfs[row["OSPF-ID"]] = h3c.ospf(
                         row["OSPF-ID"],
                         row["OSPF-router-id"])
                     if row["OSPF-Silent"] != None:
@@ -78,7 +78,7 @@ def intCfg(config,csv_file):
                                 row["Interface"])
                 if (row["OSPFv3-Area"] != None and 
                         row["OSPFv3-Area"] not in ospfv3s):
-                    ospfv3s[row["OSPFv3-ID"]] = config.ospf(
+                    ospfv3s[row["OSPFv3-ID"]] = h3c.ospf(
                         row["OSPF-ID"],
                         row["OSPF-router-id"])
                     if row["OSPFv3-Silent"] != None:
@@ -91,7 +91,7 @@ def vrfCfg(config,csv_file):
         csv_data = csv.DictReader(data)
         for row in csv_data:
             if row["name"] not in vrfs:
-                vrfs[row["name"]] = config.Vrf(row["name"],
+                vrfs[row["name"]] = h3c.Vrf(row["name"],
                         row["rd"])
 
             if row["import"] != None:
@@ -109,7 +109,7 @@ def objCfg(config,csv_file):
         csv_data = csv.DictReader(data)
         for row in csv_data:
             if row["name"] not in objs:
-                objs[row["name"]] == config.Obj(row["name"],
+                objs[row["name"]] == h3c.Obj(row["name"],
                         ipv=row["ipv"])
             objs[row["name"]].add(row["network"],
                     row["type"])
@@ -125,7 +125,7 @@ def routesCfg(config,csv_file):
     with open(csv_file) as data:
         csv_data = csv.DictReader(data)
         for row in csv_data:
-            routes.append(config.Route(row["dest"],
+            routes.append(h3c.Route(row["dest"],
                     row["Next-Hop"],
                     ipv=int(row["ipv"]),
                     weight=row["Weight"],
@@ -144,13 +144,13 @@ def aclCfg(config,csv_file):
                 if row["name"] in acl4s:
                     acl4s[row["name"]].add(row)
                 else:
-                    acl4s[row["name"]] = config.Acl(row["name"])
+                    acl4s[row["name"]] = h3c.Acl(row["name"])
                     acl4s[row["name"]].add(row)
             elif row["ipv"] == '6':
                 if row["name"] in acl6s:
                     acl6s[row["name"]].add(row)
                 else:
-                    acl64s[row["name"]] = config.Acl6(row["name"])
+                    acl64s[row["name"]] = h3c.Acl6(row["name"])
                     acl6s[row["name"]].add(row)
         for acl in acl4s:
             acl4s[acl].output(config)
