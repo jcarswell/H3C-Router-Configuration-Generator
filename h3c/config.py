@@ -73,11 +73,11 @@ class Acl():
 
         # Create ACL rule header
         if self.num != None and self.name != None:
-            f.write("acl advanced {} name {}\n".format(self.num,self.name))
+            config += "acl advanced {} name {}\n".format(self.num,self.name)
         elif self.num != None:
-            f.write("acl advanced {}\n".format(self.num))
+            config += "acl advanced {}\n".format(self.num)
         elif self.name != None:
-            f.write("acl advanced name {}\n".format(self.name))
+            config += "acl advanced name {}\n".format(self.name)
         
         # Create the rules
         for ruleRow in self.rules:
@@ -85,33 +85,37 @@ class Acl():
                     self.rules[ruleRow]['type'],
                     self.rules[ruleRow]['proto'])
             if self.rules[ruleRow]['vpn'] != None:
-                rule = rule + "vpn-instance {} ".format(self.rules[ruleRow]['vpn'])
+                config +=  "vpn-instance {} ".format(self.rules[ruleRow]['vpn'])
             if self.rules[ruleRow]['src'] != None:
                 try:
                     if int(self.rules[ruleRow]['src'][0]):
-                        rule = rule + "{} ".format(self.rules[ruleRow]['src'])
+                        config +=  "{} ".format(self.rules[ruleRow]['src'])
                     if self.rules[ruleRow]['src-wild'] != None:
-                        rule = rule + "{} ".format(self.rules[ruleRow]['src-wild'])
+                        config +=  "{} ".format(self.rules[ruleRow]['src-wild'])
                 except ValueError:
-                    rule = rule + "object-group {} ".format(self.rules[ruleRow]['src'])
+                    config +=  "object-group {} ".format(self.rules[ruleRow]['src'])
             if self.rules[ruleRow]['dest'] != None:
                 try:
                     if int(self.rules[ruleRow]['dest'][0]):
-                        rule = rule + "{} ".format(self.rules[ruleRow]['dest'])
+                        config +=  "{} ".format(self.rules[ruleRow]['dest'])
                     if self.rules[ruleRow]['dest-wild'] != None:
-                        rule = rule + "{} ".format(self.rules[ruleRow]['dest-wild'])
+                        config +=  "{} ".format(self.rules[ruleRow]['dest-wild'])
                 except ValueError:
-                    rule = rule + "object-group {} ".format(self.rules[ruleRow]['dest'])
+                    config +=  "object-group {} ".format(self.rules[ruleRow]['dest'])
 
                 if self.rules[ruleRow]['proto'] != 'ip':
                     if self.rules[ruleRow]['dest-port-end'] != None:
-                        rule = rule + "range {} {}".format(self.rules[ruleRow]['dest-port'],
+                        config +=  "range {} {}".format(self.rules[ruleRow]['dest-port'],
                                 self.rules[ruleRow]['dest-port-end'])
                     elif self.rules[ruleRow]['dest-port'] != None:
-                        rule = rule + "eq {}".format(self.rules[ruleRow]['dest-port'])
+                        config +=  "eq {}".format(self.rules[ruleRow]['dest-port'])
 
             if self.rules[ruleRow]['options'] != None:
-                rule = rule + " {}".format(self.rules[ruleRow]['options'])
+                config +=  " {}".format(self.rules[ruleRow]['options'])
+            
+            config += "\n"
+        
+        return config
 
     def output(self,f):
         # Check to see if f is a file otherwise raise an ValueError
@@ -130,44 +134,48 @@ class Acl6(Acl):
     def __str__(self):
 
         if self.num != None and self.name != None:
-            f.write("acl ipv6 advanced {} name {}\n".format(self.num,self.name))
+            config += "acl ipv6 advanced {} name {}\n".format(self.num,self.name)
         elif self.num != None:
-            f.write("acl ipv6 advanced {}\n".format(self.num))
+            config += "acl ipv6 advanced {}\n".format(self.num)
         elif self.name != None:
-            f.write("acl ipv6 advanced name {}\n".format(self.name))
+            config += "acl ipv6 advanced name {}\n".format(self.name)
         for ruleRow in self.rules:
             rule = " rule {} {} {} ".format(ruleRow,
                     self.rules[ruleRow]['type'],
                     self.rules[ruleRow]['proto'])
             if self.rules[ruleRow]['vpn'] != None:
-                rule = rule + "vpn-instance {} ".format(self.rules[ruleRow]['vpn'])
+                config +=  "vpn-instance {} ".format(self.rules[ruleRow]['vpn'])
             if self.rules[ruleRow]['src'] != None:
                 try:
                     if int(self.rules[ruleRow]['src'][0]):
-                        rule = rule + "{} ".format(self.rules[ruleRow]['src'])
+                        config +=  "{} ".format(self.rules[ruleRow]['src'])
                     #if self.rules[ruleRow]['src-wild'] != None:
-                    #    rule = rule + "{} ".format(self.rules[ruleRow]['src-wild'])
+                    #    config +=  "{} ".format(self.rules[ruleRow]['src-wild'])
                 except ValueError:
-                    rule = rule + "object-group {} ".format(self.rules[ruleRow]['src'])
+                    config +=  "object-group {} ".format(self.rules[ruleRow]['src'])
             if self.rules[ruleRow]['dest'] != None:
                 try:
                     if int(self.rules[ruleRow]['dest'][0]):
-                        rule = rule + "{} ".format(self.rules[ruleRow]['dest'])
+                        config +=  "{} ".format(self.rules[ruleRow]['dest'])
                     #if self.rules[ruleRow]['dest-wild'] != None:
-                    #    rule = rule + "{} ".format(self.rules[ruleRow]['dest-wild'])
+                    #    config +=  "{} ".format(self.rules[ruleRow]['dest-wild'])
                 except ValueError:
-                    rule = rule + "object-group {} ".format(self.rules[ruleRow]['dest'])
+                    config +=  "object-group {} ".format(self.rules[ruleRow]['dest'])
 
                 if self.rules[ruleRow]['proto'] != 'ip':
                     if self.rules[ruleRow]['dest-port-end'] != None:
-                        rule = rule + "range {} {}".format(self.rules[ruleRow]['dest-port'],
+                        config +=  "range {} {}".format(self.rules[ruleRow]['dest-port'],
                                 self.rules[ruleRow]['dest-port-end'])
                     elif self.rules[ruleRow]['dest-port'] != None:
-                        rule = rule + "eq {}".format(self.rules[ruleRow]['dest-port'])
+                        config +=  "eq {}".format(self.rules[ruleRow]['dest-port'])
 
             if self.rules[ruleRow]['options'] != None:
-                rule = rule + " {}".format(self.rules[ruleRow]['options'])
-
+                config +=  " {}".format(self.rules[ruleRow]['options'])
+            
+            config += "\n"
+        
+        return config
+        
 class Interface():
     """ Interface Config objects
     """
@@ -370,7 +378,7 @@ class Interface():
             for opt in self.int_opts:
                 config += " {}\n".format(opt)
 
-        config += "#"
+        config += "#\n"
         return config
 
     def output(seld,f):
@@ -517,7 +525,7 @@ class Vrf():
         config += " address-family ipv4\n"
         config += " #\n"
         config += " address-family ipv6\n"
-        config += "#"
+        config += "#\n"
 
         return config
 
