@@ -380,7 +380,7 @@ class Interface():
                 raise TypeError("argument is not a open file")
         except NameError:
             raise ValueError("Missing argument")
-        f.write(self)
+        f.write(str(self))
 
 class Ospf():
 
@@ -433,14 +433,14 @@ class Ospf():
 
         return config
 
-    def Output(self,f):
+    def output(self,f):
         # Check to see if f is a file otherwise raise an ValueError
         try:
             if not isinstance(f,file):
                 raise TypeError("argument is not a open file")
         except NameError:
             raise ValueError("Missing argument")
-        f.write(self)
+        f.write(str(self))
 
 class Ospfv3(Ospf):
     def __str__(self):
@@ -521,14 +521,14 @@ class Vrf():
 
         return config
 
-    def Output(self,f):
+    def output(self,f):
         # Check to see if f is a file otherwise raise an ValueError
         try:
             if not isinstance(f,file):
                 raise TypeError("argument is not a open file")
         except NameError:
             raise ValueError("Missing argument")
-        f.write(self)
+        f.write(str(self))
 
 class Route():
 
@@ -577,14 +577,14 @@ class Route():
 
         return config
 
-    def Output(self,f):
+    def output(self,f):
         # Check to see if f is a file otherwise raise an ValueError
         try:
             if not isinstance(f,file):
                 raise TypeError("argument is not a open file")
         except NameError:
             raise ValueError("Missing argument")
-        f.write(self)
+        f.write(str(self))
 
 class Obj():
     objects = {}
@@ -627,11 +627,11 @@ class Obj():
 
         return config
 
-    def Output(self,f):
+    def output(self,f):
         # Check to see if f is a file otherwise raise an ValueError
         try:
             if not isinstance(f, file):
                 raise TypeError("argument is not a open file")
         except NameError:
             raise ValueError("Missing argument")
-        f.write(self)
+        f.write(str(self))
