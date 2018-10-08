@@ -463,9 +463,9 @@ class Ospfv3(Ospf):
 
         return config
 
-class vrf():
+class Vrf():
     name = ""
-    rd = ""
+    rd = None
     imports = []
     exports = []
     
@@ -475,11 +475,11 @@ class vrf():
         else:
             self.name = name
 
-        if type(rd) != 'str':
+        if type(rd) != 'str' or rd != None:
             raise TypeError("rd must be a string")
         else:
             self.rd = rd
-            if auto:
+            if auto and rd != None:
                 self.imports.append(rd)
                 self.exports.append(rd)
             
@@ -497,19 +497,21 @@ class vrf():
         """
 
         config = "ip vpn-instance {}\n".format(self.name)
-        config += " route-distinguisher {}\n".format(self.rd)
 
-        if self.imports != []:
-            config += "vpn-target "
-            for rd in self.imports:
-                config += "{} ".format(rd)
-            config += "import-extcommunity\n"
+        if rd != None:
+            config += " route-distinguisher {}\n".format(self.rd)
 
-        if self.exports != []:
-            config += "vpn-target "
-            for rd in self.exports:
-                config += "{} ".format(rd)
-            config += "export-extcommunity\n"
+            if self.imports != []:
+                config += "vpn-target "
+                for rd in self.imports:
+                    config += "{} ".format(rd)
+                config += "import-extcommunity\n"
+
+            if self.exports != []:
+                config += "vpn-target "
+                for rd in self.exports:
+                    config += "{} ".format(rd)
+                config += "export-extcommunity\n"
 
         config += " #\n"
         config += " address-family ipv4\n"
