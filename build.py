@@ -82,16 +82,53 @@ def intCfg(config,csv_file):
                                 csv_data[row]["Interface"])
 
 def vrfCfg(config,csv_file):
-    pass
+    vrfs = {}
+    with open(csv_file) as data:
+        csv_data = csv.DictReader(data)
+        for l in csv_data:
+            if csv_data[l]["name"] not in vrfs:
+                vrfs[csv_data[l]["name"]] = config.Vrf(csv_data[l]["name"],
+                        csv_data[l]["rd"])
+
+            if csv_data[l]["import"] != None:
+                vrfs[csv_data[l]["name"]].add(imp=csv_data[l]["import"])
+            if csv_data[l]["export"] != None:
+                vrfs[csv_data[l]["name"]].add(exp=csv_data[l]["export"])
+
+    for vrf in vrfs:
+        vrfs[vrf].output(config)
+
 
 def objCfg(config,csv_file):
-    pass
+    objs = {}
+    with open(csv_file) as data:
+        csv_data = csv.DictReader(data)
+        for l in csv_data:
+            if csv_data[l]["name"] not in objs:
+                objs[csv_data[l]["name"]] == config.Obj(csv_data[l]["name"],
+                        ipv=csv_data[l]["ipv"])
+            objs[csv_data[l]["name"]].add(csv_data[l]["network"],
+                    csv_data[l]["type"])
+
+    for obj in objs:
+        objs[obj].output(config)
 
 def bgpCfg(config,csv_file):
     pass
 
 def routesCfg(config,csv_file):
-    pass
+    routes = []
+    with open(csv_file) as data:
+        csv_data = csv.DictReader(data)
+        for l in csv_data:
+            routes.append(config.Route(csv_data[l]["dest"],
+                    csv_data[l]["Next-Hop"],
+                    ipv=int(csv_data[l]["ipv"]),
+                    weight=csv_data[l]["Weight"],
+                    vrf=csv_data[l]["VRF"]))
+
+    for route in routes:
+        route.output(config)
 
 def aclCfg(config,csv_file):
     acl4s = {}

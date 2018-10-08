@@ -530,7 +530,7 @@ class Vrf():
             raise ValueError("Missing argument")
         f.write(self)
 
-class Routes():
+class Route():
 
     ipv = None
     dest = None
