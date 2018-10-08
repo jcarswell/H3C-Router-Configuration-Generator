@@ -57,15 +57,11 @@ class Acl():
             else:
                 self.rules[rule_num][x] = data[x]
 
-
-    def output(self,f):
-        """ Acl.output(filename)
+    def __str__(self):
+        """ Acl.__str__()
         Generates a comware 7 based ipv4 access-list configuration section
-        
-        Arguments:
-          f = file that we are writting the config to
 
-        Returns: None
+        Returns: string of configuration
         
         Rule string format:
             rule {num} {type} {proto} ?(vpn-instance {vpn}) 
@@ -74,12 +70,6 @@ class Acl():
                 ?{dest-port} ?{dest-port-end} ?{options}
         """
 
-        # Check to see if f is a file otherwise raise an ValueError
-        try:
-            if type(f) != 'file':
-                raise TypeError("argument is not a open file")
-        except NameError:
-            raise ValueError("Missing argument")
 
         # Create ACL rule header
         if self.num != None and self.name != None:
@@ -123,22 +113,21 @@ class Acl():
             if self.rules[ruleRow]['options'] != None:
                 rule = rule + " {}".format(self.rules[ruleRow]['options'])
 
-            f.write(rule)
-
-        def __str__(self):
-            return("IPv4 Access-list {} with {} rules".format(self.name,len(self.rules)+1))
+    def output(self,f):
+        # Check to see if f is a file otherwise raise an ValueError
+        try:
+            if type(f) != 'file':
+                raise TypeError("argument is not a open file")
+        except NameError:
+            raise ValueError("Missing argument")
+        f.write(rule)
 
 
 class Acl6(Acl):
     """ Acl6 extends Acl
     overwites the base class with support for IPv6 based access-lists
     """
-    def output(self,f):
-        try:
-            if type(f) != 'file':
-                raise TypeError("argument is not a open file")
-        except NameError:
-            raise ValueError("Missing argument")
+    def __str__(self):
 
         if self.num != None and self.name != None:
             f.write("acl ipv6 advanced {} name {}\n".format(self.num,self.name))
@@ -147,7 +136,6 @@ class Acl6(Acl):
         elif self.name != None:
             f.write("acl ipv6 advanced name {}\n".format(self.name))
         for ruleRow in self.rules:
-            # rule {num} {type} {proto} ?(vpn-instance {vpn}) ?(source ?object-group {src}) ?(destination ?object-group {dest} (eq|range) {dest-port} ?{dest-port-end} ?{options}
             rule = " rule {} {} {} ".format(ruleRow,
                     self.rules[ruleRow]['type'],
                     self.rules[ruleRow]['proto'])
@@ -180,18 +168,25 @@ class Acl6(Acl):
             if self.rules[ruleRow]['options'] != None:
                 rule = rule + " {}".format(self.rules[ruleRow]['options'])
 
-            f.write(rule)
+    def output(self,f):
+        f.write(self)
 
 class Interface():
     """ Interface Config objects
     """
     
+    feilds = ["description","shutdown",
+            "link-mode","combo","ip","mask","ipv6",
+            "vrf","acl","aclv6","OPSF-ID","OSPF-Area",
+            "OSPFv3-Area","vrrp-id","vrrp-ip","dhcp-mode",
+            "dhcp-opts","dhcpv6-mode","dhcpv6-opts","dhcp-trust","int-opts"]
     link_mode = None
     combo = None
-    shutdown = FALSE
-    description = ""
-    vrf = ""
+    shutdown = False
+    description = None
+    vrf = None
     ip = {4:None,6:None}
+    mask = None
     ospf = {}
     ospfv3 = {}
     vrrp = {}
@@ -200,23 +195,183 @@ class Interface():
     dhcp_opts = []
     dhcpv6_mode = None
     dhcpv6_opts = []
-    ip_opts = []
+    dhcp_trust = {4:False,6:True}
+    int_opts = []
     acl = {4:None 6:None}
 
     def __init__(self,name,config):
-        """ __init___(name,config)
+        """ __init__(name,config)
         Initalize a new Interface object and build the configuration
 
         Arguments:
             name(string) = the Interface name
             config(dict) = Interface configuration data
         """
-        self.name = name
+        int_name = ""
+        ospf_pid = None
+        ospf_area = None
+        ospfv3_area = None
+        vrrp_id = None
+        vrrp_ip = None
+
+        if type(name) != 'str':
+            raise TypeError("Name must be a string")
+        elif (len(name) <= 11 and "g" in name.lower()):
+            int_name = "GigabitEthernet"
+            for l in name:
+                try:
+                    int(l)
+                    int_name = int_name + l
+                except ValueError:
+                    if (l == '/' or l == '.'):
+                        int_name = int_name + 1
+
+        elif (len(name) <= 11 and "f" in name.lower()):
+            int_name = "FastEthernet"
+            for l in name:
+                try:
+                    int(l)
+                    int_name = int_name + l
+                except ValueError:
+                    if (l == '/' or l == '.'):
+                        int_name = int_name + 1
+        
+        self.name = int_name
+        if type(config) != 'dict':
+            raise TypeError("config must be a dict")
         for item in config:
-            pass
+            if item not in feilds:
+                pass
+            if config[item] != None:
+                if item == "description":
+                    self.description = config[item]
+                elif item == "shutdown":
+                    self.shutdown = True
+                elif item == "link-mode":
+                    self.link_mode = config[item]
+                elif item == "combo":
+                    self.combo = config[item]
+                elif item == "ip":
+                    self.ip[4] = config[item]
+                elif item == "ipv6":
+                    self.ip[6] = config[item]
+                elif item == "mask":
+                    self.mask = config[item]
+                elif item == "OSPF-ID":
+                    ospf_pid = config[item]
+                elif item == "OSPF-Area":
+                    ospf_area = config[item]
+                elif item == "OSPFv3-Area":
+                    ospfv3_area = config[item]
+                elif item == "vrrp-id":
+                    vrrp_id = config[item]
+                elif item == "vrrp-ip":
+                    vrrp_ip= config[item]
+                elif item == "dhcp-mode":
+                    self.dhcp_mode = config[item]
+                elif item == "dhcp-opts":
+                    self.dhcp_opts.append(config[item])
+                elif item == "dhcpv6-opts":
+                    self.dhcpv6_opts.append(config[item])
+                elif item == "dhcpv6-mode":
+                    self.dhcpv6_mode = config[item]
+                elif item == "dhcp-trust":
+                    self.dhcp_trust = True
+                elif item == "vrf":
+                    self.vrf = config[item]
+                elif item == "acl":
+                    self.acl[4] = config[item]
+                elif item == "aclv6":
+                    self.acl[6] = config[item]
+        
+        if ospf_pid != None and ospf_area != None:
+            self.ospf[ospf_pid] = ospf_area
+        if ospf_pid != None and ospfv3_area != None:
+            self.ospfv3[ospf_pid] = ospfv3_area
+        if vrrp_id != None and vrrp_ip != None:
+            self.vrrp[vrrp_id] = vrrp_ip
+
+    def add(self,dhcp=None,dhcpv6=None,opts=None):
+        """ add(dhcp,dhcpv6,opts)
+        Add aditional options to dhcp_opts, dhcpv6_opts or int_opts
+
+        Arguments:
+            dhcp (str|None): String to add to dhcp_opts
+            dhcpv6 (str|None): String to add to dhcpv6_opts
+            opts (str|None): String to add to int_opts
+
+        returns: None
+        """
+
+        if dhcp != None:
+            dhcp_opts.append(dhcp)
+        if dhcpv6 != None:
+            dhcpv6_opt.append(dhcpv6)
+        if opts != None:
+            int_opts.append(opts)
 
     def __str__(self):
-        
+        dhcp = None
+        dhcpv6 = None 
+
+        config = "interface {}\n".format(self.name)
+        if (self.link-mode != None and (
+                self.link-mode.lower() == "bridge" or
+                self.link-mode.lower() == "route"))
+            config += " port link-mode {}\n".format(self.link.mode.lower())
+        if (self.combo != None and (
+                self.combo.lower() == "copper" or
+                self.combo.lower() == "fiber"))
+            config += " combo enable {}\n".format(self.combo.lower())
+        if self.description != None:
+            config += " description \"{}\"\n".format(self.description)
+        if self.vrf != None:
+            config += " ip binding vpn-instance {}\n".format(self.vrf)
+        if self.ip[4] != None and self.mask != None:
+            config += " ip address {} {}\n".format(self.ip[4],self.mask)
+        if self.ospf != {}:
+            for pid in self.ospf:
+                config += " ospf {} area {}\n".format(pid,self.ospf[pid])
+        if self.ospfv3 != {}:
+            for pid in self.ospfv3:
+                config += " ospfv3 {} area {}\n".format(pid,self.ospfv3[pid])
+
+        if self.vrrp != {}:
+            for vrid in self.vrrp:
+                config += " vrrp vrid {} virtual-ip {}\n".format(vrid,self.vrrp[vrid])
+
+        if self.acl[4] != None:
+            config += " packet-filter name {} inbound\n".format(self.acl[4])
+        if self.acl[6] != None:
+            config += " packet-filter ipv6 name {} inbound\n".format(self.acl[6])
+
+        if (self.dhcp_mode != None and (
+                self.dhcp_mode.lower() == "dhcp" or 
+                self.dhcp_mode.lower() == "relay")):
+            dhcp = self.dhcp_mode.lower()
+            config += " dhcp select {}\n".format(dhcp)
+        if self.dhcp_opts != []:
+            for opt in self.dhcp_opts:
+                config += " dhcp {} {}\n".format(dhcp,opt)
+
+        if (self.dhcpv6_mode != None and (
+                self.dhcpv6_mode.lower() == "dhcp" or 
+                self.dhcpv6_mode.lower() == "relay")):
+            dhcpv6 = self.dhcpv6_mode.lower()
+            config += " ipv6 dhcp select {}\n".format(dhcpv6)
+        if self.dhcpv6_opts != []:
+            for opt in self.dhcpv6_opts:
+                config += " ipv6 dhcp {} {}\n".format(dhcpv6,opt)
+
+        if self.ip[6] != None:
+            config += " ip address {}\n".format(self.ip[6])
+
+        if self.int_opts != []:
+            for opt in self.int_opts:
+                config += " {}\n".format(opt)
+
+        config += "#"
+        return config
 
     def output(seld,f):
         f.write(self)
