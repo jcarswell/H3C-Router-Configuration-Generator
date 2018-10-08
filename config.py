@@ -195,7 +195,7 @@ class Interface():
     dhcp_opts = []
     dhcpv6_mode = None
     dhcpv6_opts = []
-    dhcp_trust = {4:False,6:True}
+    dhcp_trust = False
     int_opts = []
     acl = {4:None 6:None}
 
@@ -365,7 +365,10 @@ class Interface():
 
         if self.ip[6] != None:
             config += " ip address {}\n".format(self.ip[6])
-
+        if self.dhcp_trust:
+            config += " dhcp snooping trust\n ipv6 dhcp snooping trust\n"
+        if self.shutdown:
+            config += " shutdown\n"
         if self.int_opts != []:
             for opt in self.int_opts:
                 config += " {}\n".format(opt)
