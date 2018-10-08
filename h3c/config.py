@@ -20,7 +20,7 @@ class Acl():
         Returns: None
         """
         if (name != None and
-                type(name) != string):
+                not isinstance(name,basestring)):
             raise TypeError("name must be a string")
         else:
             self.name = name
@@ -35,7 +35,7 @@ class Acl():
             raise ValueError("Either name or num nust be set") 
     
     def add(self,data):
-        if type(acl) != 'dict':
+        if not isinstance(acl,dict):
             raise TypeError('data must be a dict')
 
         try:
@@ -116,7 +116,7 @@ class Acl():
     def output(self,f):
         # Check to see if f is a file otherwise raise an ValueError
         try:
-            if type(f) != 'file':
+            if not isinstance(f,file):
                 raise TypeError("argument is not a open file")
         except NameError:
             raise ValueError("Missing argument")
@@ -211,7 +211,7 @@ class Interface():
         vrrp_id = None
         vrrp_ip = None
 
-        if type(name) != 'str':
+        if not isinstance(name,basestring):
             raise TypeError("Name must be a string")
         elif (len(name) <= 11 and "g" in name.lower()):
             int_name = "GigabitEthernet"
@@ -234,7 +234,7 @@ class Interface():
                         int_name = int_name + 1
         
         self.name = int_name
-        if type(config) != 'dict':
+        if not isinstance(config,dict):
             raise TypeError("config must be a dict")
         for item in config:
             if item not in feilds:
@@ -376,7 +376,7 @@ class Interface():
     def output(seld,f):
         # Check to see if f is a file otherwise raise an ValueError
         try:
-            if type(f) != 'file':
+            if not isinstance(f,file):
                 raise TypeError("argument is not a open file")
         except NameError:
             raise ValueError("Missing argument")
@@ -405,7 +405,7 @@ class Ospf():
         except ValueError:
             raise TypeError("pid must be an int")
         
-        if type(router_id) != 'string':
+        if not isinstance(router_id,basestring):
             raise TypeError("id must be a string")
         else:
             self.router_id = router_id
@@ -436,7 +436,7 @@ class Ospf():
     def Output(self,f):
         # Check to see if f is a file otherwise raise an ValueError
         try:
-            if type(f) != 'file':
+            if not isinstance(f,file):
                 raise TypeError("argument is not a open file")
         except NameError:
             raise ValueError("Missing argument")
@@ -470,12 +470,12 @@ class Vrf():
     exports = []
     
     def __init__(self,name,rd,auto=True):
-        if type(name) != 'str':
+        if not isinstance(name,basestring):
             raise TypeError("name must be a string")
         else:
             self.name = name
 
-        if type(rd) != 'str' or rd != None:
+        if (not isinstance(rd,basestring) and rd != None):
             raise TypeError("rd must be a string")
         else:
             self.rd = rd
@@ -498,11 +498,11 @@ class Vrf():
 
         config = "ip vpn-instance {}\n".format(self.name)
 
-        if rd != None:
+        if self.rd != None:
             config += " route-distinguisher {}\n".format(self.rd)
 
             if self.imports != []:
-                config += "vpn-target "
+                config += " vpn-target "
                 for rd in self.imports:
                     config += "{} ".format(rd)
                 config += "import-extcommunity\n"
@@ -524,7 +524,7 @@ class Vrf():
     def Output(self,f):
         # Check to see if f is a file otherwise raise an ValueError
         try:
-            if type(f) != 'file':
+            if not isinstance(f,file):
                 raise TypeError("argument is not a open file")
         except NameError:
             raise ValueError("Missing argument")
@@ -580,7 +580,7 @@ class Route():
     def Output(self,f):
         # Check to see if f is a file otherwise raise an ValueError
         try:
-            if type(f) != 'file':
+            if not isinstance(f,file):
                 raise TypeError("argument is not a open file")
         except NameError:
             raise ValueError("Missing argument")
@@ -592,7 +592,7 @@ class Obj():
     ipv = 4
 
     def __init__(self,name,ipv=4):
-        if type(name) != 'str':
+        if not isinstance(name,basestring):
             raise TypeError("name must be of type str")
 
         self.name = name
@@ -630,7 +630,7 @@ class Obj():
     def Output(self,f):
         # Check to see if f is a file otherwise raise an ValueError
         try:
-            if type(f) != 'file':
+            if not isinstance(f, file):
                 raise TypeError("argument is not a open file")
         except NameError:
             raise ValueError("Missing argument")
