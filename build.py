@@ -154,3 +154,5 @@ def aclCfg(config,csv_file):
         for acl in acl6s:
             acl6s[acl].output(config)
 
+if __name__ == "__main__":
+    main()
