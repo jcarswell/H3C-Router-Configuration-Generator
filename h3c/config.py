@@ -508,7 +508,7 @@ class Vrf():
                 config += "import-extcommunity\n"
 
             if self.exports != []:
-                config += "vpn-target "
+                config += " vpn-target "
                 for rd in self.exports:
                     config += "{} ".format(rd)
                 config += "export-extcommunity\n"
