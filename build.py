@@ -69,7 +69,7 @@ def intCfg(config,csv_file):
                             dhcpv6=row["dhcpv6-opts"])
             if row["OSPF-ID"] != None:
                 if (row["OSPF-Area"] != None and 
-                        row["OSPF-Area"] not in ospfs):
+                                 row["OSPF-Area"] not in ospfs):
                     ospfs[row["OSPF-ID"]] = config.ospf(
                         row["OSPF-ID"],
                         row["OSPF-router-id"])
@@ -89,15 +89,15 @@ def vrfCfg(config,csv_file):
     vrfs = {}
     with open(csv_file) as data:
         csv_data = csv.DictReader(data)
-        for l in csv_data:
-            if csv_data[l]["name"] not in vrfs:
-                vrfs[csv_data[l]["name"]] = config.Vrf(csv_data[l]["name"],
-                        csv_data[l]["rd"])
+        for row in csv_data:
+            if row["name"] not in vrfs:
+                vrfs[row["name"]] = config.Vrf(row["name"],
+                        row["rd"])
 
-            if csv_data[l]["import"] != None:
-                vrfs[csv_data[l]["name"]].add(imp=csv_data[l]["import"])
-            if csv_data[l]["export"] != None:
-                vrfs[csv_data[l]["name"]].add(exp=csv_data[l]["export"])
+            if row["import"] != None:
+                vrfs[row["name"]].add(imp=row["import"])
+            if row["export"] != None:
+                vrfs[row["name"]].add(exp=row["export"])
 
     for vrf in vrfs:
         vrfs[vrf].output(config)
@@ -107,12 +107,12 @@ def objCfg(config,csv_file):
     objs = {}
     with open(csv_file) as data:
         csv_data = csv.DictReader(data)
-        for l in csv_data:
-            if csv_data[l]["name"] not in objs:
-                objs[csv_data[l]["name"]] == config.Obj(csv_data[l]["name"],
-                        ipv=csv_data[l]["ipv"])
-            objs[csv_data[l]["name"]].add(csv_data[l]["network"],
-                    csv_data[l]["type"])
+        for row in csv_data:
+            if row["name"] not in objs:
+                objs[row["name"]] == config.Obj(row["name"],
+                        ipv=row["ipv"])
+            objs[row["name"]].add(row["network"],
+                    row["type"])
 
     for obj in objs:
         objs[obj].output(config)
@@ -124,12 +124,12 @@ def routesCfg(config,csv_file):
     routes = []
     with open(csv_file) as data:
         csv_data = csv.DictReader(data)
-        for l in csv_data:
-            routes.append(config.Route(csv_data[l]["dest"],
-                    csv_data[l]["Next-Hop"],
-                    ipv=int(csv_data[l]["ipv"]),
-                    weight=csv_data[l]["Weight"],
-                    vrf=csv_data[l]["VRF"]))
+        for row in csv_data:
+            routes.append(config.Route(row["dest"],
+                    row["Next-Hop"],
+                    ipv=int(row["ipv"]),
+                    weight=row["Weight"],
+                    vrf=row["VRF"]))
 
     for route in routes:
         route.output(config)
