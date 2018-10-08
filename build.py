@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/python
 import sys
 import csv
 import config
@@ -13,9 +13,13 @@ def main():
     obj_csv = None
     config = 'config.txt'
 
-    for x in len(sys.argv + 1):
+    for x in range(1,len(sys.argv)):
         opt = sys.argv[x].lower()
-        arg = sys.argv[x+1]
+        try:
+            arg = sys.argv[x+1]
+        except IndexError:
+            arg = None
+
         if opt == "--interface":
             int_csv = arg
         elif opt == "--bgp":
@@ -33,7 +37,7 @@ def main():
 
     with open(config, 'a+') as c:
         if vrf_csv != None:
-            vrfCfg(c,crf_csv)
+            vrfCfg(c,vrf_csv)
         if obj_csv != None:
             objCfg(c,acl_cfg)
         if acl_csv != None:
@@ -53,33 +57,33 @@ def intCfg(config,csv_file):
     with open(csv_file) as data:
         csv_data = csv.DictReader(data)
         for l in csv_data:
-            if csv_data[row]["Interface"] not in interfaces:
-                interfaces[csv_data[row]["Interface"]] in config.Interface(
-                        csv_data[row]["Interface"],csv_data[row])
+            if row["Interface"] not in interfaces:
+                interfaces[row["Interface"]] in config.Interface(
+                        row["Interface"],row)
             else:
-                if csv_data[row]["dhcp-opts"] != None:
-                    interfaces[csv_data[row]["Interface"]].add(
-                            dhcp=csv_data[row]["dhcp-opts"])
-                if csv_data[row]["dhcpv6-opts"] != None:
-                    interfaces[csv_data[row]["Interface"]].add(
-                            dhcpv6=csv_data[row]["dhcpv6-opts"])
-            if csv_data[row]["OSPF-ID"] != None:
-                if (csv_data[row]["OSPF-Area"] != None and 
-                        csv_data[row]["OSPF-Area"] not in ospfs):
-                    ospfs[csv_data[row]["OSPF-ID"]] = config.ospf(
-                        csv_data[row]["OSPF-ID"],
-                        csv_data[row]["OSPF-router-id"])
-                    if csv_data[row]["OSPF-Silent"] != None:
-                        ospfs[csv_data[row]["OSPF-ID"]].silent_int.append(
-                                csv_data[row]["Interface"])
-                if (csv_data[row]["OSPFv3-Area"] != None and 
-                        csv_data[row]["OSPFv3-Area"] not in ospfv3s):
-                    ospfv3s[csv_data[row]["OSPFv3-ID"]] = config.ospf(
-                        csv_data[row]["OSPF-ID"],
-                        csv_data[row]["OSPF-router-id"])
-                    if csv_data[row]["OSPFv3-Silent"] != None:
-                        ospfv3s[csv_data[row]["OSPF-ID"]].silent_int.append(
-                                csv_data[row]["Interface"])
+                if row["dhcp-opts"] != None:
+                    interfaces[row["Interface"]].add(
+                            dhcp=row["dhcp-opts"])
+                if row["dhcpv6-opts"] != None:
+                    interfaces[row["Interface"]].add(
+                            dhcpv6=row["dhcpv6-opts"])
+            if row["OSPF-ID"] != None:
+                if (row["OSPF-Area"] != None and 
+                        row["OSPF-Area"] not in ospfs):
+                    ospfs[row["OSPF-ID"]] = config.ospf(
+                        row["OSPF-ID"],
+                        row["OSPF-router-id"])
+                    if row["OSPF-Silent"] != None:
+                        ospfs[row["OSPF-ID"]].silent_int.append(
+                                row["Interface"])
+                if (row["OSPFv3-Area"] != None and 
+                        row["OSPFv3-Area"] not in ospfv3s):
+                    ospfv3s[row["OSPFv3-ID"]] = config.ospf(
+                        row["OSPF-ID"],
+                        row["OSPF-router-id"])
+                    if row["OSPFv3-Silent"] != None:
+                        ospfv3s[row["OSPF-ID"]].silent_int.append(
+                                row["Interface"])
 
 def vrfCfg(config,csv_file):
     vrfs = {}
@@ -136,18 +140,18 @@ def aclCfg(config,csv_file):
     with open(csv_file) as data:
         csv_data = csv.DictReader(data)
         for row in csv_data:
-            if csv_data[row]["ipv"] == '4':
-                if csv_data[row]["name"] in acl4s:
-                    acl4s[csv_data[row]["name"]].add(csv_data[row])
+            if row["ipv"] == '4':
+                if row["name"] in acl4s:
+                    acl4s[row["name"]].add(row)
                 else:
-                    acl4s[csv_data[row]["name"]] = config.Acl(csv_data[row]["name"])
-                    acl4s[csv_data[row]["name"]].add(csv_data[row])
-            elif csv_data[row]["ipv"] == '6':
-                if csv_data[row]["name"] in acl6s:
-                    acl6s[csv_data[row]["name"]].add(csv_data[row])
+                    acl4s[row["name"]] = config.Acl(row["name"])
+                    acl4s[row["name"]].add(row)
+            elif row["ipv"] == '6':
+                if row["name"] in acl6s:
+                    acl6s[row["name"]].add(row)
                 else:
-                    acl64s[csv_data[row]["name"]] = config.Acl6(csv_data[row]["name"])
-                    acl6s[csv_data[row]["name"]].add(csv_data[row])
+                    acl64s[row["name"]] = config.Acl6(row["name"])
+                    acl6s[row["name"]].add(row)
         for acl in acl4s:
             acl4s[acl].output(config)
 
