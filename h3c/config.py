@@ -19,23 +19,27 @@ class Acl():
 
         Returns: None
         """
+        # Set the class defaults
+        self.rules = {}
+        self.name = None
+        self.num = None
+
         if (name != None and
                 not isinstance(name,basestring)):
             raise TypeError("name must be a string")
         else:
             self.name = name
-        if num != None:
-                try:
-                    int(num)
-                except ValueError:
-                    raise TypeError("num must be an int")
+
+        if num != None and not isinstance(num,int):
+            raise ValueError("num must be an int")
         else:
-            self.num = int(num)
+            self.num = num
+
         if name == None and num == None:
             raise ValueError("Either name or num nust be set") 
     
     def add(self,data):
-        if not isinstance(acl,dict):
+        if not isinstance(data,dict):
             raise TypeError('data must be a dict')
 
         try:
@@ -43,7 +47,7 @@ class Acl():
         except ValueError:
             rule_num = 0
 
-        while true:
+        while True:
             if rule_num in self.rules:
                 rule_num = rule_num + 5
             else:
@@ -73,44 +77,44 @@ class Acl():
 
         # Create ACL rule header
         if self.num != None and self.name != None:
-            config += "acl advanced {} name {}\n".format(self.num,self.name)
+            config = "acl advanced {} name {}\n".format(self.num,self.name)
         elif self.num != None:
-            config += "acl advanced {}\n".format(self.num)
+            config = "acl advanced {}\n".format(self.num)
         elif self.name != None:
-            config += "acl advanced name {}\n".format(self.name)
+            config = "acl advanced name {}\n".format(self.name)
         
         # Create the rules
         for ruleRow in self.rules:
-            rule = " rule {} {} {} ".format(ruleRow,
+            config += " rule {} {} {} ".format(ruleRow,
                     self.rules[ruleRow]['type'],
                     self.rules[ruleRow]['proto'])
-            if self.rules[ruleRow]['vpn'] != None:
+            if self.rules[ruleRow]['vpn'] != "":
                 config +=  "vpn-instance {} ".format(self.rules[ruleRow]['vpn'])
-            if self.rules[ruleRow]['src'] != None:
+            if self.rules[ruleRow]['src'] != "":
                 try:
                     if int(self.rules[ruleRow]['src'][0]):
                         config +=  "{} ".format(self.rules[ruleRow]['src'])
-                    if self.rules[ruleRow]['src-wild'] != None:
+                    if self.rules[ruleRow]['src-wild'] != "":
                         config +=  "{} ".format(self.rules[ruleRow]['src-wild'])
                 except ValueError:
                     config +=  "object-group {} ".format(self.rules[ruleRow]['src'])
-            if self.rules[ruleRow]['dest'] != None:
+            if self.rules[ruleRow]['dest'] != "":
                 try:
-                    if int(self.rules[ruleRow]['dest'][0]):
+                    if int(self.rules[ruleRow]['dest']):
                         config +=  "{} ".format(self.rules[ruleRow]['dest'])
-                    if self.rules[ruleRow]['dest-wild'] != None:
+                    if self.rules[ruleRow]['dest-wild'] != "":
                         config +=  "{} ".format(self.rules[ruleRow]['dest-wild'])
                 except ValueError:
                     config +=  "object-group {} ".format(self.rules[ruleRow]['dest'])
 
                 if self.rules[ruleRow]['proto'] != 'ip':
-                    if self.rules[ruleRow]['dest-port-end'] != None:
+                    if self.rules[ruleRow]['dest-port-end'] != "":
                         config +=  "range {} {}".format(self.rules[ruleRow]['dest-port'],
                                 self.rules[ruleRow]['dest-port-end'])
-                    elif self.rules[ruleRow]['dest-port'] != None:
+                    elif self.rules[ruleRow]['dest-port'] != "":
                         config +=  "eq {}".format(self.rules[ruleRow]['dest-port'])
 
-            if self.rules[ruleRow]['options'] != None:
+            if self.rules[ruleRow]['options'] != "":
                 config +=  " {}".format(self.rules[ruleRow]['options'])
             
             config += "\n"
@@ -124,7 +128,7 @@ class Acl():
                 raise TypeError("argument is not a open file")
         except NameError:
             raise ValueError("Missing argument")
-        f.write(rule)
+        f.write(str(self))
 
 
 class Acl6(Acl):
@@ -134,42 +138,38 @@ class Acl6(Acl):
     def __str__(self):
 
         if self.num != None and self.name != None:
-            config += "acl ipv6 advanced {} name {}\n".format(self.num,self.name)
+            config = "acl ipv6 advanced {} name {}\n".format(self.num,self.name)
         elif self.num != None:
-            config += "acl ipv6 advanced {}\n".format(self.num)
+            config = "acl ipv6 advanced {}\n".format(self.num)
         elif self.name != None:
-            config += "acl ipv6 advanced name {}\n".format(self.name)
+            config = "acl ipv6 advanced name {}\n".format(self.name)
         for ruleRow in self.rules:
-            rule = " rule {} {} {} ".format(ruleRow,
+            config += " rule {} {} {} ".format(ruleRow,
                     self.rules[ruleRow]['type'],
                     self.rules[ruleRow]['proto'])
-            if self.rules[ruleRow]['vpn'] != None:
+            if self.rules[ruleRow]['vpn'] != "":
                 config +=  "vpn-instance {} ".format(self.rules[ruleRow]['vpn'])
-            if self.rules[ruleRow]['src'] != None:
+            if self.rules[ruleRow]['src'] != "":
                 try:
                     if int(self.rules[ruleRow]['src'][0]):
                         config +=  "{} ".format(self.rules[ruleRow]['src'])
-                    #if self.rules[ruleRow]['src-wild'] != None:
-                    #    config +=  "{} ".format(self.rules[ruleRow]['src-wild'])
                 except ValueError:
                     config +=  "object-group {} ".format(self.rules[ruleRow]['src'])
-            if self.rules[ruleRow]['dest'] != None:
+            if self.rules[ruleRow]['dest'] != "":
                 try:
                     if int(self.rules[ruleRow]['dest'][0]):
                         config +=  "{} ".format(self.rules[ruleRow]['dest'])
-                    #if self.rules[ruleRow]['dest-wild'] != None:
-                    #    config +=  "{} ".format(self.rules[ruleRow]['dest-wild'])
                 except ValueError:
                     config +=  "object-group {} ".format(self.rules[ruleRow]['dest'])
 
-                if self.rules[ruleRow]['proto'] != 'ip':
-                    if self.rules[ruleRow]['dest-port-end'] != None:
+                if self.rules[ruleRow]['proto'] != 'ipv6':
+                    if self.rules[ruleRow]['dest-port-end'] != "":
                         config +=  "range {} {}".format(self.rules[ruleRow]['dest-port'],
                                 self.rules[ruleRow]['dest-port-end'])
-                    elif self.rules[ruleRow]['dest-port'] != None:
+                    elif self.rules[ruleRow]['dest-port'] != "":
                         config +=  "eq {}".format(self.rules[ruleRow]['dest-port'])
 
-            if self.rules[ruleRow]['options'] != None:
+            if self.rules[ruleRow]['options'] != "":
                 config +=  " {}".format(self.rules[ruleRow]['options'])
             
             config += "\n"
@@ -180,7 +180,7 @@ class Interface():
     """ Interface Config objects
     """
     
-    feilds = ["description","shutdown",
+    fields = ["description","shutdown",
             "link-mode","combo","ip","mask","ipv6",
             "vrf","acl","aclv6","OPSF-ID","OSPF-Area",
             "OSPFv3-Area","vrrp-id","vrrp-ip","dhcp-mode",
@@ -203,6 +203,8 @@ class Interface():
     dhcp_trust = False
     int_opts = []
     acl = {4:None,6:None}
+    name = ""
+    interface = ""
 
     def __init__(self,name,config):
         """ __init__(name,config)
@@ -212,12 +214,34 @@ class Interface():
             name(string) = the Interface name
             config(dict) = Interface configuration data
         """
+        self.link_mode = None
+        self.combo = None
+        self.shutdown = False
+        self.description = None
+        self.vrf = None
+        self.ip = {4:None,6:None}
+        self.mask = None
+        self.ospf = {}
+        self.ospfv3 = {}
+        self.vrrp = {}
+        self.vlan = None
+        self.dhcp_mode = None
+        self.dhcp_opts = []
+        self.dhcpv6_mode = None
+        self.dhcpv6_opts = []
+        self.dhcp_trust = False
+        self.int_opts = []
+        self.acl = {4:None,6:None}
+        self.name = ""
+        self.interface = ""
+
         int_name = ""
         ospf_pid = None
         ospf_area = None
         ospfv3_area = None
         vrrp_id = None
         vrrp_ip = None
+        self.interface = name
 
         if not isinstance(name,basestring):
             raise TypeError("Name must be a string")
@@ -226,11 +250,10 @@ class Interface():
             for l in name:
                 try:
                     int(l)
-                    int_name = int_name + l
+                    int_name += l
                 except ValueError:
                     if (l == '/' or l == '.'):
-                        int_name = int_name + 1
-
+                        int_name += l
         elif (len(name) <= 11 and "f" in name.lower()):
             int_name = "FastEthernet"
             for l in name:
@@ -240,54 +263,85 @@ class Interface():
                 except ValueError:
                     if (l == '/' or l == '.'):
                         int_name = int_name + 1
+        elif "lo" in name.lower():
+            int_name = "LoopBack"
+            for l in name:
+                try:
+                    int(l)
+                    int_name = int_name + l
+                except ValueError:
+                    pass
+        else:
+            int_name = name
         
         self.name = int_name
+
         if not isinstance(config,dict):
             raise TypeError("config must be a dict")
         for item in config:
-            if item not in feilds:
+            if item not in self.fields:
                 pass
             if config[item] != None:
                 if item == "description":
-                    self.description = config[item]
+                    if config[item] != '':
+                        self.description = config[item]
                 elif item == "shutdown":
-                    self.shutdown = True
+                    if config[item] != '':
+                        self.shutdown = True
                 elif item == "link-mode":
-                    self.link_mode = config[item]
+                    if config[item] != '':
+                        self.link_mode = config[item]
                 elif item == "combo":
-                    self.combo = config[item]
+                    if config[item] != '':
+                        self.combo = config[item]
                 elif item == "ip":
-                    self.ip[4] = config[item]
+                    if config[item] != '':
+                        self.ip[4] = config[item]
                 elif item == "ipv6":
-                    self.ip[6] = config[item]
+                    if config[item] != '':
+                        self.ip[6] = config[item]
                 elif item == "mask":
-                    self.mask = config[item]
+                    if config[item] != '':
+                        self.mask = config[item]
                 elif item == "OSPF-ID":
-                    ospf_pid = config[item]
+                    if config[item] != '':
+                        ospf_pid = config[item]
                 elif item == "OSPF-Area":
-                    ospf_area = config[item]
+                    if config[item] != '':
+                        ospf_area = config[item]
                 elif item == "OSPFv3-Area":
-                    ospfv3_area = config[item]
+                    if config[item] != '':
+                        ospfv3_area = config[item]
                 elif item == "vrrp-id":
-                    vrrp_id = config[item]
+                    if config[item] != '':
+                        vrrp_id = config[item]
                 elif item == "vrrp-ip":
-                    vrrp_ip= config[item]
+                    if config[item] != '':
+                        vrrp_ip= config[item]
                 elif item == "dhcp-mode":
-                    self.dhcp_mode = config[item]
+                    if config[item] != '':
+                        self.dhcp_mode = config[item]
                 elif item == "dhcp-opts":
-                    self.dhcp_opts.append(config[item])
+                    if config[item] != '':
+                        self.dhcp_opts.append(config[item])
                 elif item == "dhcpv6-opts":
-                    self.dhcpv6_opts.append(config[item])
+                    if config[item] != '':
+                        self.dhcpv6_opts.append(config[item])
                 elif item == "dhcpv6-mode":
-                    self.dhcpv6_mode = config[item]
+                    if config[item] != '':
+                        self.dhcpv6_mode = config[item]
                 elif item == "dhcp-trust":
-                    self.dhcp_trust = True
+                    if config[item] != '':
+                        self.dhcp_trust = True
                 elif item == "vrf":
-                    self.vrf = config[item]
+                    if config[item] != '':
+                        self.vrf = config[item]
                 elif item == "acl":
-                    self.acl[4] = config[item]
+                    if config[item] != '':
+                        self.acl[4] = config[item]
                 elif item == "aclv6":
-                    self.acl[6] = config[item]
+                    if config[item] != '':
+                        self.acl[6] = config[item]
         
         if ospf_pid != None and ospf_area != None:
             self.ospf[ospf_pid] = ospf_area
@@ -308,22 +362,22 @@ class Interface():
         returns: None
         """
 
-        if dhcp != None:
-            dhcp_opts.append(dhcp)
-        if dhcpv6 != None:
-            dhcpv6_opt.append(dhcpv6)
-        if opts != None:
-            int_opts.append(opts)
+        if (dhcp != None or dhcp != ''):
+            self.dhcp_opts.append(dhcp)
+        if (dhcpv6 != None or dhcpv6 != ''):
+            self.dhcpv6_opts.append(dhcpv6)
+        if (opts != None or opts != ''):
+            self.int_opts.append(opts)
 
     def __str__(self):
         dhcp = None
         dhcpv6 = None 
 
-        config = "interface {}\n".format(self.name)
-        if (self.link-mode != None and (
-                self.link-mode.lower() == "bridge" or
-                self.link-mode.lower() == "route")):
-            config += " port link-mode {}\n".format(self.link.mode.lower())
+        config = "interface {} \n".format(self.name)
+        if (self.link_mode != None and (
+                self.link_mode.lower() == "bridge" or
+                self.link_mode.lower() == "route")):
+            config += " port link-mode {}\n".format(self.link_mode.lower())
         if (self.combo != None and (
                 self.combo.lower() == "copper" or
                 self.combo.lower() == "fiber")):
@@ -355,33 +409,34 @@ class Interface():
                 self.dhcp_mode.lower() == "relay")):
             dhcp = self.dhcp_mode.lower()
             config += " dhcp select {}\n".format(dhcp)
-        if self.dhcp_opts != []:
-            for opt in self.dhcp_opts:
-                config += " dhcp {} {}\n".format(dhcp,opt)
+            if self.dhcp_opts != []:
+                for opt in self.dhcp_opts:
+                    config += " dhcp {} {}\n".format(dhcp,opt)
 
         if (self.dhcpv6_mode != None and (
                 self.dhcpv6_mode.lower() == "dhcp" or 
                 self.dhcpv6_mode.lower() == "relay")):
             dhcpv6 = self.dhcpv6_mode.lower()
             config += " ipv6 dhcp select {}\n".format(dhcpv6)
-        if self.dhcpv6_opts != []:
-            for opt in self.dhcpv6_opts:
-                config += " ipv6 dhcp {} {}\n".format(dhcpv6,opt)
+            if self.dhcpv6_opts != []:
+                for opt in self.dhcpv6_opts:
+                    config += " ipv6 dhcp {} {}\n".format(dhcpv6,opt)
 
         if self.ip[6] != None:
-            config += " ip address {}\n".format(self.ip[6])
+            config += " ipv6 address {}\n".format(self.ip[6])
         if self.dhcp_trust:
             config += " dhcp snooping trust\n ipv6 dhcp snooping trust\n"
         if self.shutdown:
             config += " shutdown\n"
         if self.int_opts != []:
             for opt in self.int_opts:
-                config += " {}\n".format(opt)
+                if opt != None:
+                    config += " {}\n".format(opt)
 
         config += "#\n"
         return config
 
-    def output(seld,f):
+    def output(self,f):
         # Check to see if f is a file otherwise raise an ValueError
         try:
             if not isinstance(f,file):
@@ -408,6 +463,11 @@ class Ospf():
 
         Returns: Class object
         """
+        self.pid = None
+        self.router_id = ""
+        self.vrf = None
+        self.silent_int = []
+
         try:
             self.pid = int(pid)
         except ValueError:
@@ -478,6 +538,11 @@ class Vrf():
     exports = []
     
     def __init__(self,name,rd,auto=True):
+        self.name = ""
+        self.rd = None
+        self.imports = []
+        self.exports = []
+
         if not isinstance(name,basestring):
             raise TypeError("name must be a string")
         else:
@@ -570,9 +635,9 @@ class Route():
         """ __str__()
         Returns a string object of the configuration
         """
-        if ipv == 4:
+        if self.ipv == 4:
             config = " ip route-static "
-        elif ipv == 6:
+        elif self.ipv == 6:
             config = " ipv6 route-static "
 
         if self.vrf != None:
@@ -582,6 +647,8 @@ class Route():
         
         if self.weight != None:
             config += " preferance {}".format(self.weight)
+
+        config += "\n"
 
         return config
 
@@ -600,6 +667,9 @@ class Obj():
     ipv = 4
 
     def __init__(self,name,ipv=4):
+        self.objects = {}
+        self.name = ""
+        self.ipv = 4
         if not isinstance(name,basestring):
             raise TypeError("name must be of type str")
 
@@ -610,10 +680,10 @@ class Obj():
             raise TypeError("ipv must be an int")
 
     def add(self,obj,obj_type):
-        if (obj_type != "host" or
-                obj_type != "subnet"):
+        if (obj_type == "host" or obj_type == "subnet"):
+            self.objects[obj] = obj_type
+        else:
             raise ValueError("obj_type must be either 'host' or 'subnet'")
-        self.objects[obj] = obj_type
 
     def __str__(self):
         """ __str__()
@@ -622,9 +692,9 @@ class Obj():
         if self.objects == {}:
             return 
         config = "object-group "
-        if ipv == 4:
+        if self.ipv == 4:
             config += "ip address {}\n".format(self.name)
-        elif ipv == 6:
+        elif self.ipv == 6:
             config += "ipv6 address {}\n".format(self.name)
 
         for obj in self.objects:
