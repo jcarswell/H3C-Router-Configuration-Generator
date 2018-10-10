@@ -91,6 +91,7 @@ class Acl():
             if self.rules[ruleRow]['vpn'] != "":
                 config +=  "vpn-instance {} ".format(self.rules[ruleRow]['vpn'])
             if self.rules[ruleRow]['src'] != "":
+                config += "source "
                 try:
                     if int(self.rules[ruleRow]['src'][0]):
                         config +=  "{} ".format(self.rules[ruleRow]['src'])
@@ -99,6 +100,7 @@ class Acl():
                 except ValueError:
                     config +=  "object-group {} ".format(self.rules[ruleRow]['src'])
             if self.rules[ruleRow]['dest'] != "":
+                config += "destination "
                 try:
                     if int(self.rules[ruleRow]['dest']):
                         config +=  "{} ".format(self.rules[ruleRow]['dest'])
@@ -109,10 +111,10 @@ class Acl():
 
                 if self.rules[ruleRow]['proto'] != 'ip':
                     if self.rules[ruleRow]['dest-port-end'] != "":
-                        config +=  "range {} {}".format(self.rules[ruleRow]['dest-port'],
+                        config +=  "destination-port range {} {}".format(self.rules[ruleRow]['dest-port'],
                                 self.rules[ruleRow]['dest-port-end'])
                     elif self.rules[ruleRow]['dest-port'] != "":
-                        config +=  "eq {}".format(self.rules[ruleRow]['dest-port'])
+                        config +=  "destination-port eq {}".format(self.rules[ruleRow]['dest-port'])
 
             if self.rules[ruleRow]['options'] != "":
                 config +=  " {}".format(self.rules[ruleRow]['options'])
@@ -150,12 +152,14 @@ class Acl6(Acl):
             if self.rules[ruleRow]['vpn'] != "":
                 config +=  "vpn-instance {} ".format(self.rules[ruleRow]['vpn'])
             if self.rules[ruleRow]['src'] != "":
+                config += "source "
                 try:
                     if int(self.rules[ruleRow]['src'][0]):
                         config +=  "{} ".format(self.rules[ruleRow]['src'])
                 except ValueError:
                     config +=  "object-group {} ".format(self.rules[ruleRow]['src'])
             if self.rules[ruleRow]['dest'] != "":
+                config += "destination "
                 try:
                     if int(self.rules[ruleRow]['dest'][0]):
                         config +=  "{} ".format(self.rules[ruleRow]['dest'])
@@ -164,10 +168,10 @@ class Acl6(Acl):
 
                 if self.rules[ruleRow]['proto'] != 'ipv6':
                     if self.rules[ruleRow]['dest-port-end'] != "":
-                        config +=  "range {} {}".format(self.rules[ruleRow]['dest-port'],
+                        config +=  "destination-port range {} {}".format(self.rules[ruleRow]['dest-port'],
                                 self.rules[ruleRow]['dest-port-end'])
                     elif self.rules[ruleRow]['dest-port'] != "":
-                        config +=  "eq {}".format(self.rules[ruleRow]['dest-port'])
+                        config +=  "destination-port eq {}".format(self.rules[ruleRow]['dest-port'])
 
             if self.rules[ruleRow]['options'] != "":
                 config +=  " {}".format(self.rules[ruleRow]['options'])
