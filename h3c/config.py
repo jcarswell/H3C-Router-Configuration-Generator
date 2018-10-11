@@ -111,6 +111,8 @@ class Acl():
                     config +=  "{} ".format(self.rules[ruleRow]['src'])
                     if self.is_ip(self.rules[ruleRow]['src-wild'],strict=True):
                         config +=  "{} ".format(self.rules[ruleRow]['src-wild'])
+                    else:
+                        config += "0.0.0.0 "
                 else:
                     config +=  "object-group {} ".format(self.rules[ruleRow]['src'])
             if self.rules[ruleRow]['dest'] != "":
@@ -119,18 +121,20 @@ class Acl():
                     config +=  "{} ".format(self.rules[ruleRow]['dest'])
                     if self.is_ip(self.rules[ruleRow]['dest-wild'],strict=True):
                         config +=  "{} ".format(self.rules[ruleRow]['dest-wild'])
+                    else:
+                        config += "0.0.0.0 "
                 else:
-                    config +=  "object-group {} ".format(self.rules[ruleRow]['dest'])
+                    config +=  "object-group {}".format(self.rules[ruleRow]['dest'])
 
                 if self.rules[ruleRow]['proto'] != 'ip':
                     if self.rules[ruleRow]['dest-port-end'] != "":
-                        config +=  "destination-port range {} {}".format(self.rules[ruleRow]['dest-port'],
+                        config +=  " destination-port range {} {}".format(self.rules[ruleRow]['dest-port'],
                                 self.rules[ruleRow]['dest-port-end'])
                     elif self.rules[ruleRow]['dest-port'] != "":
-                        config +=  "destination-port eq {}".format(self.rules[ruleRow]['dest-port'])
+                        config +=  " destination-port eq {}".format(self.rules[ruleRow]['dest-port'])
 
             if self.rules[ruleRow]['options'] != "":
-                config +=  "{}".format(self.rules[ruleRow]['options'])
+                config +=  " {}".format(self.rules[ruleRow]['options'])
             
             config += "\n"
         
@@ -176,14 +180,14 @@ class Acl6(Acl):
                 if self.is_ip(self.rules[ruleRow]['dest']):
                     config +=  "{} ".format(self.rules[ruleRow]['dest'])
                 else:
-                    config +=  "object-group {} ".format(self.rules[ruleRow]['dest'])
+                    config +=  "object-group {}".format(self.rules[ruleRow]['dest'])
 
                 if self.rules[ruleRow]['proto'] != 'ipv6':
                     if self.rules[ruleRow]['dest-port-end'] != "":
-                        config +=  "destination-port range {} {}".format(self.rules[ruleRow]['dest-port'],
+                        config +=  " destination-port range {} {}".format(self.rules[ruleRow]['dest-port'],
                                 self.rules[ruleRow]['dest-port-end'])
                     elif self.rules[ruleRow]['dest-port'] != "":
-                        config +=  "destination-port eq {}".format(self.rules[ruleRow]['dest-port'])
+                        config +=  " destination-port eq {}".format(self.rules[ruleRow]['dest-port'])
 
             if self.rules[ruleRow]['options'] != "":
                 config +=  " {}".format(self.rules[ruleRow]['options'])
