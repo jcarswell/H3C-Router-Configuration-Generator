@@ -1,4 +1,6 @@
 # Router Build (comware7|h3c) all configuration object classes 
+import ipaddress
+from io import IOBase
 
 class Acl():
     """ Acl
@@ -25,7 +27,7 @@ class Acl():
         self.num = None
 
         if (name != None and
-                not isinstance(name,basestring)):
+                not isinstance(name,str)):
             raise TypeError("name must be a string")
         else:
             self.name = name
@@ -38,6 +40,19 @@ class Acl():
         if name == None and num == None:
             raise ValueError("Either name or num nust be set") 
     
+    def is_ip(self,ip,strict=False):
+        try:
+            temp = ipaddress.ip_address(ip)
+            return True
+        except:
+            pass
+        if not strict:
+            try:
+                temp = ipaddress.ip_network(ip)
+                return True
+            except:
+                pass
+
     def add(self,data):
         if not isinstance(data,dict):
             raise TypeError('data must be a dict')
@@ -92,21 +107,19 @@ class Acl():
                 config +=  "vpn-instance {} ".format(self.rules[ruleRow]['vpn'])
             if self.rules[ruleRow]['src'] != "":
                 config += "source "
-                try:
-                    if int(self.rules[ruleRow]['src'][0]):
-                        config +=  "{} ".format(self.rules[ruleRow]['src'])
-                    if self.rules[ruleRow]['src-wild'] != "":
+                if self.is_ip(self.rules[ruleRow]['src'],strict=True):
+                    config +=  "{} ".format(self.rules[ruleRow]['src'])
+                    if self.is_ip(self.rules[ruleRow]['src-wild'],strict=True):
                         config +=  "{} ".format(self.rules[ruleRow]['src-wild'])
-                except ValueError:
+                else:
                     config +=  "object-group {} ".format(self.rules[ruleRow]['src'])
             if self.rules[ruleRow]['dest'] != "":
                 config += "destination "
-                try:
-                    if int(self.rules[ruleRow]['dest']):
-                        config +=  "{} ".format(self.rules[ruleRow]['dest'])
-                    if self.rules[ruleRow]['dest-wild'] != "":
+                if self.is_ip(self.rules[ruleRow]['dest'],strict=True):
+                    config +=  "{} ".format(self.rules[ruleRow]['dest'])
+                    if self.is_ip(self.rules[ruleRow]['dest-wild'],strict=True):
                         config +=  "{} ".format(self.rules[ruleRow]['dest-wild'])
-                except ValueError:
+                else:
                     config +=  "object-group {} ".format(self.rules[ruleRow]['dest'])
 
                 if self.rules[ruleRow]['proto'] != 'ip':
@@ -117,17 +130,17 @@ class Acl():
                         config +=  "destination-port eq {}".format(self.rules[ruleRow]['dest-port'])
 
             if self.rules[ruleRow]['options'] != "":
-                config +=  " {}".format(self.rules[ruleRow]['options'])
+                config +=  "{}".format(self.rules[ruleRow]['options'])
             
             config += "\n"
         
         return config
 
     def output(self,f):
-        # Check to see if f is a file otherwise raise an ValueError
+        # Check to see if f is a IOBase otherwise raise an ValueError
         try:
-            if not isinstance(f,file):
-                raise TypeError("argument is not a open file")
+            if not isinstance(f,IOBase):
+                raise TypeError("argument is not a open IOBase")
         except NameError:
             raise ValueError("Missing argument")
         f.write(str(self))
@@ -137,6 +150,7 @@ class Acl6(Acl):
     """ Acl6 extends Acl
     overwites the base class with support for IPv6 based access-lists
     """
+
     def __str__(self):
 
         if self.num != None and self.name != None:
@@ -153,17 +167,15 @@ class Acl6(Acl):
                 config +=  "vpn-instance {} ".format(self.rules[ruleRow]['vpn'])
             if self.rules[ruleRow]['src'] != "":
                 config += "source "
-                try:
-                    if int(self.rules[ruleRow]['src'][0]):
-                        config +=  "{} ".format(self.rules[ruleRow]['src'])
-                except ValueError:
+                if self.is_ip(self.rules[ruleRow]['src']):
+                    config +=  "{} ".format(self.rules[ruleRow]['src'])
+                else:
                     config +=  "object-group {} ".format(self.rules[ruleRow]['src'])
             if self.rules[ruleRow]['dest'] != "":
                 config += "destination "
-                try:
-                    if int(self.rules[ruleRow]['dest'][0]):
-                        config +=  "{} ".format(self.rules[ruleRow]['dest'])
-                except ValueError:
+                if self.is_ip(self.rules[ruleRow]['dest']):
+                    config +=  "{} ".format(self.rules[ruleRow]['dest'])
+                else:
                     config +=  "object-group {} ".format(self.rules[ruleRow]['dest'])
 
                 if self.rules[ruleRow]['proto'] != 'ipv6':
@@ -247,7 +259,7 @@ class Interface():
         vrrp_ip = None
         self.interface = name
 
-        if not isinstance(name,basestring):
+        if not isinstance(name,str):
             raise TypeError("Name must be a string")
         elif (len(name) <= 11 and "g" in name.lower()):
             int_name = "GigabitEthernet"
@@ -441,10 +453,10 @@ class Interface():
         return config
 
     def output(self,f):
-        # Check to see if f is a file otherwise raise an ValueError
+        # Check to see if f is a IOBase otherwise raise an ValueError
         try:
-            if not isinstance(f,file):
-                raise TypeError("argument is not a open file")
+            if not isinstance(f,IOBase):
+                raise TypeError("argument is not a open IOBase")
         except NameError:
             raise ValueError("Missing argument")
         f.write(str(self))
@@ -477,7 +489,7 @@ class Ospf():
         except ValueError:
             raise TypeError("pid must be an int")
         
-        if not isinstance(router_id,basestring):
+        if not isinstance(router_id,str):
             raise TypeError("id must be a string")
         else:
             self.router_id = router_id
@@ -506,10 +518,10 @@ class Ospf():
         return config
 
     def output(self,f):
-        # Check to see if f is a file otherwise raise an ValueError
+        # Check to see if f is a IOBase otherwise raise an ValueError
         try:
-            if not isinstance(f,file):
-                raise TypeError("argument is not a open file")
+            if not isinstance(f,IOBase):
+                raise TypeError("argument is not a open IOBase")
         except NameError:
             raise ValueError("Missing argument")
         f.write(str(self))
@@ -547,12 +559,12 @@ class Vrf():
         self.imports = []
         self.exports = []
 
-        if not isinstance(name,basestring):
+        if not isinstance(name,str):
             raise TypeError("name must be a string")
         else:
             self.name = name
 
-        if (not isinstance(rd,basestring) and rd != None):
+        if (not isinstance(rd,str) and rd != None):
             raise TypeError("rd must be a string")
         else:
             self.rd = rd
@@ -599,10 +611,10 @@ class Vrf():
         return config
 
     def output(self,f):
-        # Check to see if f is a file otherwise raise an ValueError
+        # Check to see if f is a IOBase otherwise raise an ValueError
         try:
-            if not isinstance(f,file):
-                raise TypeError("argument is not a open file")
+            if not isinstance(f,IOBase):
+                raise TypeError("argument is not a open IOBase")
         except NameError:
             raise ValueError("Missing argument")
         f.write(str(self))
@@ -657,10 +669,10 @@ class Route():
         return config
 
     def output(self,f):
-        # Check to see if f is a file otherwise raise an ValueError
+        # Check to see if f is a IOBase otherwise raise an ValueError
         try:
-            if not isinstance(f,file):
-                raise TypeError("argument is not a open file")
+            if not isinstance(f,IOBase):
+                raise TypeError("argument is not a open IOBase")
         except NameError:
             raise ValueError("Missing argument")
         f.write(str(self))
@@ -674,7 +686,7 @@ class Obj():
         self.objects = {}
         self.name = ""
         self.ipv = 4
-        if not isinstance(name,basestring):
+        if not isinstance(name,str):
             raise TypeError("name must be of type str")
 
         self.name = name
@@ -710,10 +722,10 @@ class Obj():
         return config
 
     def output(self,f):
-        # Check to see if f is a file otherwise raise an ValueError
+        # Check to see if f is a IOBase otherwise raise an ValueError
         try:
-            if not isinstance(f, file):
-                raise TypeError("argument is not a open file")
+            if not isinstance(f, IOBase):
+                raise TypeError("argument is not a open IOBase")
         except NameError:
             raise ValueError("Missing argument")
         f.write(str(self))
