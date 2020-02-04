@@ -204,7 +204,8 @@ class Interface():
             "link-mode","combo","ip","mask","ipv6",
             "vrf","acl","aclv6","OPSF-ID","OSPF-Area",
             "OSPFv3-Area","vrrp-id","vrrp-ip","dhcp-mode",
-            "dhcp-opts","dhcpv6-mode","dhcpv6-opts","dhcp-trust","int-opts"]
+            "dhcp-opts","dhcpv6-mode","dhcpv6-opts",
+            "dhcp-trust","int-opts","vlan"]
     link_mode = None
     combo = None
     shutdown = False
@@ -254,6 +255,7 @@ class Interface():
         self.acl = {4:None,6:None}
         self.name = ""
         self.interface = ""
+        self.vlan = None
 
         int_name = ""
         ospf_pid = None
@@ -362,6 +364,9 @@ class Interface():
                 elif item == "aclv6":
                     if config[item] != '':
                         self.acl[6] = config[item]
+                elif item == "vlan":
+                    if config[item] != '':
+                        self.vlan = config[item]
         
         if ospf_pid != None and ospf_area != None:
             self.ospf[ospf_pid] = ospf_area
@@ -419,6 +424,9 @@ class Interface():
             for vrid in self.vrrp:
                 config += " vrrp vrid {} virtual-ip {}\n".format(vrid,self.vrrp[vrid])
 
+        if self.vlan != None:
+            config += " vlan-type dot1q vid {}\n".format(self.vlan)
+
         if self.acl[4] != None:
             config += " packet-filter name {} inbound\n".format(self.acl[4])
         if self.acl[6] != None:
@@ -445,7 +453,7 @@ class Interface():
         if self.ip[6] != None:
             config += " ipv6 address {}\n".format(self.ip[6])
         if self.dhcp_trust:
-            config += " dhcp snooping trust\n ipv6 dhcp snooping trust\n"
+            config += " dhcp snooping trust\n"
         if self.shutdown:
             config += " shutdown\n"
         if self.int_opts != []:
