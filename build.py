@@ -95,8 +95,7 @@ def intCfg(config,csv_file):
                         row["OSPF-router-id"],
                         row["vrf"])
                     if row["OSPF-Silent"] != "":
-                        ospfs[row["OSPF-ID"]].silent_int.append(
-                                row["Interface"])
+                        ospfs[row["OSPF-ID"]].addInterface(row["Interface"])
                 if (row["OSPFv3-Area"] != "" and 
                         row["OSPFv3-Area"] not in ospfv3s):
                     ospfv3s[row["OSPF-ID"]] = h3c.config.Ospfv3(
@@ -104,8 +103,7 @@ def intCfg(config,csv_file):
                         row["OSPF-router-id"],
                         row["vrf"])
                     if row["OSPFv3-Silent"] != "":
-                        ospfv3s[row["OSPF-ID"]].silent_int.append(
-                                row["Interface"])
+                        ospfv3s[row["OSPF-ID"]].addInterface(row["Interface"])
 
     for int_group in range(len(interfaces)):
         for interface in interfaces[int_group]:

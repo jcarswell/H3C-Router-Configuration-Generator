@@ -501,6 +501,13 @@ class Ospf():
         if vrf != None:
             self.vrf = str(vrf)
 
+    def addInterface(self,interface):
+        if not isinstance(interface,str):
+            raise TypeError("interface must be a string")
+        else:
+            self.silent_int.append(interface)
+
+
     def __str__(self):
         """ __str__()
         Returns a string object of the configuration
